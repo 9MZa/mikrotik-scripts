@@ -36,3 +36,38 @@
 
 :log info "BACKUP FINISHED"
 ```
+
+## Send Text to Telegram
+
+```
+:log info "Send to Telegram";
+
+/tool fetch url="https://api.telegram.org/bot[YourBotID]/sendMessage?chat_id=[ChatGroupID]&text=Hello Telegram" keep-result=no;
+
+```
+
+## Send Text to Telegram when loggin
+
+```
+:local whouser $user;
+:local whoip $address;
+:local macaddr [/ip hotspot active get [find address=$whoip] mac-address];
+:log info "user logged in: $whouser IP: $whoip Mac: $macaddr";
+
+{
+:local date [/system clock get date ];
+:local time [/system clock get time ];
+
+:if ( [/ip hotspot user get $user comment ] = "" ) do={[/ip hotspot user set $user comment="$date $time"];
+
+:log info "New Hotspot user logged in: $whouser";}
+}
+
+:log info "Send user to Telegram";
+
+/tool fetch url="https://api.telegram.org/bot[YourBotID]/sendMessage?chat_id=[ChatGroupID]&text=*$whouser* is logged&parse_mode=markdown" keep-result=no;
+
+:local USERACTIVE [/ip hotspot active print count-only];
+
+/tool fetch url="https://api.telegram.org/[YourBotID]/sendMessage?chat_id=[ChatGroupID]&text=$USERACTIVE users online now." keep-result=no;
+```
